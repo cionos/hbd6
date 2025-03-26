@@ -2,23 +2,25 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="Asa的生日快乐祝福页面">
     <title>🎂 HAPPY ASA DAY!</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet">
     <style>
-        /* 基础样式 */
+        /* 基础重置与变量定义 */
         :root {
             --primary-color: #ff4081;
             --secondary-color: #ff6b6b;
             --accent-color: #ff9a9e;
-            --text-shadow: 3px 3px 0 #fff, 
-                          5px 5px 10px rgba(0,0,0,0.3),
-                          0 0 20px rgba(255,64,129,0.5);
-            --box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            --transition: all 0.3s ease;
+            --text-color: #333;
+            --bg-color: #fff9fb;
+            --text-shadow: 2px 2px 0 #fff, 
+                          3px 3px 5px rgba(0,0,0,0.2);
+            --box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --border-radius: 12px;
         }
         
         * {
@@ -33,31 +35,42 @@
             min-height: 100vh;
             overflow-x: hidden;
             position: relative;
-            background-color: #fff9fb;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            touch-action: manipulation;
+            line-height: 1.5;
         }
         
-        /* 加载动画 */
+        /* 加载动画优化 */
         .loader {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
         }
         
         .loader-spinner {
             width: 50px;
             height: 50px;
-            border: 5px solid #f3f3f3;
+            border: 5px solid rgba(255, 64, 129, 0.2);
             border-top: 5px solid var(--primary-color);
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        
+        .loader-text {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            animation: pulse 1.5s ease-in-out infinite;
         }
         
         @keyframes spin {
@@ -65,7 +78,12 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* 背景图设置 */
+        @keyframes pulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
+        }
+        
+        /* 背景图优化 */
         .background-container {
             position: fixed;
             top: 0;
@@ -73,9 +91,6 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             overflow: hidden;
         }
         
@@ -84,427 +99,212 @@
             height: 100%;
             object-fit: cover;
             opacity: 0.8;
+            transition: opacity 1s ease;
         }
         
-        /* 标题样式 */
+        /* 标题样式优化 */
         .header {
             position: fixed;
-            top: 20px;
+            top: 0;
             left: 0;
             width: 100%;
             text-align: center;
-            padding: 20px 0;
+            padding: 15px 0;
             z-index: 10;
-            background: rgba(255,255,255,0.7);
-            backdrop-filter: blur(5px);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
         }
         
         .fancy-title {
             font-family: 'Dancing Script', cursive;
-            font-size: clamp(2rem, 8vw, 6rem);
+            font-size: clamp(2rem, 8vw, 4rem);
             margin: 0;
             text-shadow: var(--text-shadow);
-            letter-spacing: 3px;
-            background: linear-gradient(45deg, var(--primary-color), var(--accent-color), var(--secondary-color), var(--accent-color));
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: gradient 5s ease infinite;
-            background-size: 200% 200%;
-            padding: 0 10px;
+            padding: 0 15px;
+            transition: all 0.3s ease;
         }
         
-        @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        /* 主内容容器 */
+        .content-wrapper {
+            padding-top: 80px;
+            padding-bottom: 80px;
+            min-height: 100vh;
         }
         
-        /* 左侧照片墙 - 3列7行缩略图 (桌面版) */
-        .left-column {
-            position: fixed;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 350px;
-            height: 85vh;
-            z-index: 10;
-            overflow: hidden;
+        /* 照片墙优化 */
+        .photo-section {
+            padding: 15px;
+        }
+        
+        .photo-gallery-container {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            margin-bottom: 20px;
+        }
+        
+        .photo-gallery-container::-webkit-scrollbar {
             display: none;
         }
         
         .photo-gallery {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(7, 1fr);
-            gap: 15px;
-            height: 100%;
-            padding: 10px;
+            display: flex;
+            gap: 10px;
+            padding: 5px;
+            width: max-content;
         }
         
-        .photo-gallery img {
+        .photo-item {
             width: 100px;
             height: 100px;
-            object-fit: cover;
-            border-radius: 10px;
-            border: 2px solid white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            transition: var(--transition);
-            cursor: pointer;
-        }
-        
-        .photo-gallery img:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-        }
-        
-        /* 右侧互动区域 (桌面版) */
-        .right-column {
-            position: fixed;
-            right: 20px;
-            top: 20%;
-            transform: translateY(-50%);
-            width: 150px;
-            z-index: 10;
-            display: none;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        .vintage-button {
-            padding: 10px 15px;
-            font-size: 1rem;
-            color: white;
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: 0 4px 10px rgba(255,64,129,0.3);
-            width: 100%;
-            font-family: 'ZCOOL KuaiLe', sans-serif;
-            outline: none;
-            text-align: center;
-        }
-        
-        .vintage-button:hover, 
-        .vintage-button:focus {
-            transform: translateY(-3px);
-            box-shadow: 0 7px 15px rgba(255,64,129,0.4);
-        }
-        
-        /* 主内容区域 */
-        .main-content {
-            min-height: 100vh;
-            padding-top: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        /* 胶片轮播图 */
-        .film-container {
-            width: 80%;
-            max-width: 1000px;
-            margin: 0 auto;
+            border-radius: var(--border-radius);
+            overflow: hidden;
             position: relative;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            border: 3px solid #ff4081;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            flex-shrink: 0;
         }
         
-        .slideshow-container {
-            display: flex;
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
             transition: transform 0.5s ease;
-            height: 400px;
         }
         
-        .slide {
+        .photo-item:hover img {
+            transform: scale(1.05);
+        }
+        
+        .photo-item:active {
+            transform: scale(0.95);
+        }
+        
+        /* 轮播图优化 */
+        .carousel-section {
+            padding: 0 15px 30px;
+        }
+        
+        .carousel-container {
+            width: 100%;
+            position: relative;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+            background: white;
+        }
+        
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s cubic-bezier(0.645, 0.045, 0.355, 1);
+            height: 50vh;
+            max-height: 400px;
+            will-change: transform;
+        }
+        
+        .carousel-slide {
             min-width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 10px;
-            box-sizing: border-box;
         }
         
-        .slide img {
+        .carousel-slide img {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
-            border-radius: 5px;
-            border: 5px solid white;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            background: white;
-            padding: 5px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
         .carousel-btn {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(255, 64, 129, 0.7);
-            border: none;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            cursor: pointer;
-            z-index: 10;
-            font-size: 24px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 64, 129, 0.8);
             color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 10;
+            cursor: pointer;
             transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            opacity: 0.8;
         }
         
         .carousel-btn:hover {
-            background: rgba(255, 64, 129, 0.9);
+            opacity: 1;
             transform: translateY(-50%) scale(1.1);
         }
         
+        .carousel-btn:active {
+            transform: translateY(-50%) scale(0.9);
+        }
+        
         .carousel-prev {
-            left: 30px;
+            left: 15px;
         }
         
         .carousel-next {
-            right: 30px;
+            right: 15px;
         }
         
-        /* 音乐按钮 */
-        .music-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            font-size: 1.5rem;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(255,64,129,0.3);
-            z-index: 20;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            outline: none;
-        }
-        
-        .music-btn:hover,
-        .music-btn:focus {
-            transform: scale(1.1) rotate(15deg);
-        }
-        
-        /* 弹幕输入容器 */
-        #danmu-input-container {
-            position: fixed;
-            bottom: 100px;
-            right: 20px;
-            width: 300px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 15px;
-            padding: 15px;
-            box-shadow: var(--box-shadow);
-            z-index: 20;
-            display: none;
-        }
-        
-        /* 聊天室容器 */
-        #chat-box-container {
-            position: fixed;
-            bottom: 100px;
-            right: 20px;
-            width: 300px;
-            height: 400px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 15px;
-            padding: 15px;
-            box-shadow: var(--box-shadow);
-            z-index: 20;
-            display: none;
-            flex-direction: column;
-        }
-        
-        #chat-box {
-            flex: 1;
-            overflow-y: auto;
-            margin-bottom: 15px;
-            border: 1px solid #eee;
-            padding: 10px;
-            border-radius: 8px;
-        }
-        
-        /* 图片预览模态框 */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.9);
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modal-content {
-            max-width: 90vw;
-            max-height: 90vh;
-            object-fit: contain;
-        }
-        
-        .close-modal {
+        .carousel-indicators {
             position: absolute;
-            top: 20px;
-            right: 30px;
-            color: #fff;
-            font-size: 40px;
-            cursor: pointer;
-        }
-        
-        /* 弹幕样式 */
-        .danmu-item {
-            position: fixed;
-            white-space: nowrap;
-            color: white;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-            font-size: 24px;
-            font-weight: bold;
-            z-index: 15;
-            pointer-events: none;
-            user-select: none;
-            animation: danmuMove linear;
-            animation-fill-mode: forwards;
-        }
-        
-        @keyframes danmuMove {
-            0% {
-                transform: translateX(100vw);
-            }
-            100% {
-                transform: translateX(-100%);
-            }
-        }
-        
-        /* 特效 */
-        .heart {
-            position: fixed;
-            pointer-events: none;
-            z-index: 15;
-            animation: floatDown 3s linear forwards;
-            user-select: none;
-        }
-        
-        @keyframes floatDown {
-            0% { transform: translateY(-100px) scale(0.8); opacity: 1; }
-            100% { transform: translateY(100vh) scale(1.2); opacity: 0; }
-        }
-        
-        .click-rabbit {
-            position: fixed;
-            width: 60px;
-            height: 60px;
-            background: url('rabbit.png') center/contain no-repeat;
-            pointer-events: none;
-            animation: rabbitJump 1s ease-out forwards;
-            z-index: 15;
-            user-select: none;
-        }
-        
-        @keyframes rabbitJump {
-            0% { transform: scale(0.8); opacity: 1; }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(0.8); opacity: 0; }
-        }
-        
-        .cake-effect {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: min(90vw, 300px);
-            height: min(90vw, 300px);
-            background: url('cake.png') center/contain no-repeat;
-            z-index: 999;
-            animation: cakeAppear 1s ease-out;
-            pointer-events: none;
-        }
-        
-        @keyframes cakeAppear {
-            0% { transform: translate(-50%, -50%) scale(0); }
-            80% { transform: translate(-50%, -50%) scale(1.1); }
-            100% { transform: translate(-50%, -50%) scale(1); }
-        }
-        
-        /* 粒子动画容器 */
-        #particles-js {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-        
-        /* 移动端布局调整 */
-        .mobile-layout {
-            display: none;
-            flex-direction: column;
-            padding-top: 70px;
-            padding-bottom: 80px;
-        }
-        
-        /* 照片墙 - 移动端优化 */
-        .photo-gallery-container {
-            width: 100%;
-            padding: 10px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin-bottom: 20px;
-        }
-        
-        .mobile-photo-gallery {
+            bottom: 10px;
+            left: 0;
+            right: 0;
             display: flex;
+            justify-content: center;
             gap: 8px;
-            padding: 5px;
-            width: max-content;
+            z-index: 10;
         }
         
-        .mobile-photo-gallery img {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 2px solid white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            transition: transform 0.2s ease;
+        .carousel-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
         
-        .mobile-photo-gallery img:active {
-            transform: scale(0.95);
+        .carousel-indicator.active {
+            background: var(--primary-color);
+            transform: scale(1.2);
         }
         
-        /* 互动按钮 - 移动端底部固定 */
-        .interaction-buttons {
+        /* 互动按钮优化 */
+        .action-buttons {
             position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            display: none;
+            display: flex;
             justify-content: space-around;
-            padding: 10px;
-            background: white;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 -2px 15px rgba(0,0,0,0.1);
             z-index: 20;
+            backdrop-filter: blur(5px);
         }
         
-        .mobile-button {
+        .action-btn {
             flex: 1;
             margin: 0 5px;
             padding: 10px;
@@ -517,203 +317,438 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: transform 0.1s ease, opacity 0.2s ease;
+            transition: all 0.3s ease;
             cursor: pointer;
+            box-shadow: 0 3px 10px rgba(255, 64, 129, 0.3);
+            position: relative;
+            overflow: hidden;
         }
         
-        .mobile-button:active {
+        .action-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%, -50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .action-btn:active::after {
+            animation: ripple 0.6s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+        
+        .action-btn:active {
             transform: scale(0.95);
-            opacity: 0.8;
         }
         
-        .mobile-button span {
+        .action-btn span {
             font-size: 12px;
-            margin-top: 3px;
+            margin-top: 4px;
         }
         
-        /* 弹幕和留言面板 - 移动端优化 */
+        /* 弹幕和留言面板优化 */
         .panel {
             position: fixed;
-            bottom: 70px;
-            right: 10px;
-            width: 90%;
-            max-width: 300px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 12px;
-            padding: 15px;
+            bottom: 80px;
+            right: 15px;
+            width: calc(100% - 30px);
+            max-width: 400px;
+            max-height: 60vh;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
             z-index: 30;
             display: none;
-            max-height: 50vh;
-            overflow-y: auto;
-            backdrop-filter: blur(5px);
+            flex-direction: column;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .panel.active {
+            transform: translateY(0);
+            opacity: 1;
         }
         
         .panel-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid #eee;
+            padding: 15px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
         }
         
         .panel-title {
             font-weight: bold;
-            color: var(--primary-color);
+            font-size: 1.1rem;
         }
         
         .close-btn {
             background: none;
             border: none;
-            font-size: 18px;
+            font-size: 1.5rem;
+            color: white;
             cursor: pointer;
-            color: #999;
+            transition: transform 0.2s ease;
+        }
+        
+        .close-btn:active {
+            transform: scale(0.8);
+        }
+        
+        .panel-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        
+        .panel-footer {
+            padding: 15px;
+            border-top: 1px solid rgba(0,0,0,0.1);
         }
         
         .input-group {
             display: flex;
-            margin-top: 10px;
+            gap: 10px;
         }
         
-        .input-group input {
+        .input-field {
             flex: 1;
-            padding: 8px 12px;
+            padding: 10px 15px;
             border: 1px solid #ddd;
-            border-radius: 20px;
-            margin-right: 5px;
+            border-radius: 50px;
             font-family: inherit;
+            outline: none;
+            transition: all 0.3s ease;
         }
         
-        /* 消息样式 */
+        .input-field:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(255, 64, 129, 0.2);
+        }
+        
+        .send-btn {
+            padding: 10px 20px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .send-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* 消息样式优化 */
         .message {
-            padding: 8px 0;
-            border-bottom: 1px solid #f0f0f0;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .message-content {
+            word-break: break-word;
         }
         
         .message-time {
-            font-size: 10px;
+            font-size: 0.8rem;
             color: #999;
-            margin-top: 2px;
+            margin-top: 5px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 弹幕样式优化 */
+        .danmu-item {
+            position: fixed;
+            white-space: nowrap;
+            color: white;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+            font-size: 20px;
+            font-weight: bold;
+            z-index: 15;
+            pointer-events: none;
+            user-select: none;
+            animation: danmuMove linear forwards;
+            will-change: transform;
+            padding: 3px 10px;
+            border-radius: 50px;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(2px);
+        }
+        
+        @keyframes danmuMove {
+            from { transform: translateX(100vw); }
+            to { transform: translateX(-100%); }
+        }
+        
+        /* 音乐按钮优化 */
+        .music-btn {
+            position: fixed;
+            bottom: 85px;
+            right: 15px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 15;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .music-btn:active {
+            transform: scale(0.9);
+        }
+        
+        .music-btn.pulse {
+            animation: pulse 1.5s infinite;
+        }
+        
+        /* 特效优化 */
+        .heart {
+            position: fixed;
+            pointer-events: none;
+            z-index: 15;
+            animation: float 4s linear forwards;
+            font-size: 24px;
+            will-change: transform, opacity;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg) scale(0.5);
+                opacity: 0;
+            }
+        }
+        
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: var(--primary-color);
+            z-index: 15;
+            animation: confettiFall 5s linear forwards;
+            will-change: transform, opacity;
+        }
+        
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+        
+        /* 图片预览优化 */
+        .image-preview {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .image-preview.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        
+        .image-preview img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            animation: zoomIn 0.3s ease;
+        }
+        
+        @keyframes zoomIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        .close-preview {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            color: white;
+            font-size: 30px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .close-preview:active {
+            transform: scale(0.8);
         }
         
         /* 响应式设计 */
         @media (min-width: 992px) {
-            /* 桌面版样式 */
-            .left-column {
-                display: block;
+            /* 桌面版布局 */
+            .content-wrapper {
+                display: grid;
+                grid-template-columns: 300px 1fr 200px;
+                grid-template-areas: "photos carousel actions";
+                padding-top: 100px;
+                padding-bottom: 30px;
+                gap: 20px;
             }
             
-            .right-column {
-                display: flex;
+            .photo-section {
+                grid-area: photos;
+                padding: 20px;
+                align-self: center;
             }
             
-            .main-content {
-                display: block;
+            .carousel-section {
+                grid-area: carousel;
+                padding: 20px 0;
             }
             
-            /* 隐藏移动端元素 */
-            .mobile-layout {
-                display: none;
-            }
-            
-            .interaction-buttons {
-                display: none;
-            }
-            
-            .background-image {
+            .action-buttons {
+                position: sticky;
+                top: 120px;
+                grid-area: actions;
                 width: auto;
-                height: auto;
-                max-width: 100%;
-                max-height: 100%;
-                object-fit: contain;
-            }
-        }
-        
-        @media (max-width: 991px) {
-            /* 移动版样式 */
-            .mobile-layout {
-                display: flex;
+                flex-direction: column;
+                background: transparent;
+                box-shadow: none;
+                padding: 0 20px;
+                align-self: start;
+                gap: 15px;
             }
             
-            .interaction-buttons {
-                display: flex;
+            .action-btn {
+                margin: 0;
+                padding: 15px;
+                font-size: 1rem;
             }
             
-            .main-content {
-                display: none;
+            .action-btn span {
+                font-size: 0.9rem;
+                margin-top: 8px;
             }
             
-            /* 隐藏桌面版元素 */
-            .left-column {
-                display: none;
+            .panel {
+                bottom: auto;
+                top: 160px;
+                right: 20px;
+                max-height: 60vh;
             }
             
-            .right-column {
-                display: none;
-            }
-            
-            /* 调整轮播图样式 */
-            .film-container {
-                width: 95%;
-                padding: 10px;
-                height: auto;
-            }
-            
-            .slideshow-container {
-                height: 50vh;
-                max-height: 300px;
-            }
-            
-            .carousel-btn {
-                width: 36px;
-                height: 36px;
-                font-size: 18px;
-            }
-            
-            .carousel-prev {
-                left: 10px;
-            }
-            
-            .carousel-next {
-                right: 10px;
-            }
-            
-            /* 调整音乐按钮位置 */
             .music-btn {
-                bottom: 70px;
-                right: 10px;
-                width: 50px;
-                height: 50px;
-                font-size: 1.3rem;
+                bottom: auto;
+                top: 100px;
+                right: 20px;
             }
             
-            /* 调整弹幕和聊天窗口 */
-            #danmu-input-container,
-            #chat-box-container {
-                width: 90%;
-                max-width: 300px;
-                bottom: 70px;
-                right: 10px;
+            /* 照片墙桌面版样式 */
+            .photo-gallery-container {
+                width: auto;
+                height: 70vh;
+                overflow-x: hidden;
+                overflow-y: auto;
+                scrollbar-width: thin;
+                scrollbar-color: var(--primary-color) rgba(0,0,0,0.1);
+            }
+            
+            .photo-gallery-container::-webkit-scrollbar {
+                width: 6px;
+            }
+            
+            .photo-gallery-container::-webkit-scrollbar-track {
+                background: rgba(0,0,0,0.1);
+                border-radius: 10px;
+            }
+            
+            .photo-gallery-container::-webkit-scrollbar-thumb {
+                background-color: var(--primary-color);
+                border-radius: 10px;
+            }
+            
+            .photo-gallery {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+                width: auto;
+            }
+            
+            .photo-item {
+                width: 100%;
+                height: 120px;
+            }
+            
+            /* 轮播图桌面版样式 */
+            .carousel-container {
+                height: 70vh;
+                max-height: 700px;
+            }
+            
+            .carousel-track {
+                height: 100%;
             }
         }
         
         @media (max-width: 480px) {
             .fancy-title {
-                font-size: 2.5rem;
+                font-size: 1.8rem;
             }
             
-            .mobile-photo-gallery img {
-                width: 70px;
-                height: 70px;
+            .photo-item {
+                width: 80px;
+                height: 80px;
             }
             
-            .mobile-button {
-                font-size: 12px;
+            .action-btn {
                 padding: 8px;
+                font-size: 12px;
             }
             
-            .mobile-button span {
+            .action-btn span {
                 font-size: 10px;
             }
         }
@@ -723,6 +758,7 @@
     <!-- 加载动画 -->
     <div class="loader">
         <div class="loader-spinner"></div>
+        <div class="loader-text">加载中...</div>
     </div>
     
     <!-- 背景图容器 -->
@@ -738,617 +774,431 @@
         <h1 class="fancy-title" aria-label="Happy Asa Day">HAPPY ASA DAY</h1>
     </header>
 
-    <!-- 桌面版左侧照片墙 - 3列7行 -->
-    <aside class="left-column" aria-label="照片墙">
-        <div class="photo-gallery">
-            <img src="photo1_thumb.jpg" alt="Asa的美好回忆1" tabindex="0" data-full="photo1.jpg">
-            <img src="photo2_thumb.jpg" alt="Asa的美好回忆2" tabindex="0" data-full="photo2.jpg">
-            <img src="photo3_thumb.jpg" alt="Asa的美好回忆3" tabindex="0" data-full="photo3.jpg">
-            <img src="photo4_thumb.jpg" alt="Asa的美好回忆4" tabindex="0" data-full="photo4.jpg">
-            <img src="photo5_thumb.jpg" alt="Asa的美好回忆5" tabindex="0" data-full="photo5.jpg">
-            <img src="photo6_thumb.jpg" alt="Asa的美好回忆6" tabindex="0" data-full="photo6.jpg">
-            <img src="photo7_thumb.jpg" alt="Asa的美好回忆7" tabindex="0" data-full="photo7.jpg">
-            <img src="photo8_thumb.jpg" alt="Asa的美好回忆8" tabindex="0" data-full="photo8.jpg">
-            <img src="photo9_thumb.jpg" alt="Asa的美好回忆9" tabindex="0" data-full="photo9.jpg">
-            <img src="photo10_thumb.jpg" alt="Asa的美好回忆10" tabindex="0" data-full="photo10.jpg">
-            <img src="photo11_thumb.jpg" alt="Asa的美好回忆11" tabindex="0" data-full="photo11.jpg">
-            <img src="photo12_thumb.jpg" alt="Asa的美好回忆12" tabindex="0" data-full="photo12.jpg">
-            <img src="photo13_thumb.jpg" alt="Asa的美好回忆13" tabindex="0" data-full="photo13.jpg">
-            <img src="photo14_thumb.jpg" alt="Asa的美好回忆14" tabindex="0" data-full="photo14.jpg">
-            <img src="photo15_thumb.jpg" alt="Asa的美好回忆15" tabindex="0" data-full="photo15.jpg">
-            <img src="photo16_thumb.jpg" alt="Asa的美好回忆16" tabindex="0" data-full="photo16.jpg">
-            <img src="photo17_thumb.jpg" alt="Asa的美好回忆17" tabindex="0" data-full="photo17.jpg">
-            <img src="photo18_thumb.jpg" alt="Asa的美好回忆18" tabindex="0" data-full="photo18.jpg">
-            <img src="photo19_thumb.jpg" alt="Asa的美好回忆19" tabindex="0" data-full="photo19.jpg">
-            <img src="photo20_thumb.jpg" alt="Asa的美好回忆20" tabindex="0" data-full="photo20.jpg">
-            <img src="photo21_thumb.jpg" alt="Asa的美好回忆21" tabindex="0" data-full="photo21.jpg">
-        </div>
-    </aside>
-
-    <!-- 桌面版右侧互动区域 -->
-    <aside class="right-column">
-        <button id="like-btn" class="vintage-button" aria-label="点赞按钮">
-            ❤️ 点赞 (<span id="like-count">0</span>)
-        </button>
-        <button id="danmu-btn" class="vintage-button" aria-label="弹幕按钮">
-            🎆 弹幕
-        </button>
-        <button id="chat-toggle" class="vintage-button" aria-label="留言按钮">
-            💬 留言
-        </button>
-        <button id="drawing-btn" class="vintage-button" aria-label="涂鸦板">
-            🎨 涂鸦板
-        </button>
-    </aside>
-
-    <!-- 移动端布局容器 -->
-    <div class="mobile-layout">
-        <!-- 照片墙 - 横向滚动 -->
-        <div class="photo-gallery-container">
-            <div class="mobile-photo-gallery">
-                <img src="photo1_thumb.jpg" alt="Asa的美好回忆1" loading="lazy" data-full="photo1.jpg">
-                <img src="photo2_thumb.jpg" alt="Asa的美好回忆2" loading="lazy" data-full="photo2.jpg">
-                <img src="photo3_thumb.jpg" alt="Asa的美好回忆3" loading="lazy" data-full="photo3.jpg">
-                <img src="photo4_thumb.jpg" alt="Asa的美好回忆4" loading="lazy" data-full="photo4.jpg">
-                <img src="photo5_thumb.jpg" alt="Asa的美好回忆5" loading="lazy" data-full="photo5.jpg">
-                <img src="photo6_thumb.jpg" alt="Asa的美好回忆6" loading="lazy" data-full="photo6.jpg">
-                <img src="photo7_thumb.jpg" alt="Asa的美好回忆7" loading="lazy" data-full="photo7.jpg">
-                <img src="photo8_thumb.jpg" alt="Asa的美好回忆8" loading="lazy" data-full="photo8.jpg">
-                <img src="photo9_thumb.jpg" alt="Asa的美好回忆9" loading="lazy" data-full="photo9.jpg">
-                <img src="photo10_thumb.jpg" alt="Asa的美好回忆10" loading="lazy" data-full="photo10.jpg">
+    <!-- 主内容区域 -->
+    <div class="content-wrapper">
+        <!-- 照片墙 -->
+        <section class="photo-section" aria-label="美好回忆">
+            <div class="photo-gallery-container">
+                <div class="photo-gallery">
+                    <div class="photo-item">
+                        <img src="photo1_thumb.jpg" alt="Asa的美好回忆1" loading="lazy" data-full="photo1.jpg">
+                    </div>
+                    <div class="photo-item">
+                        <img src="photo2_thumb.jpg" alt="Asa的美好回忆2" loading="lazy" data-full="photo2.jpg">
+                    </div>
+                    <div class="photo-item">
+                        <img src="photo3_thumb.jpg" alt="Asa的美好回忆3" loading="lazy" data-full="photo3.jpg">
+                    </div>
+                    <div class="photo-item">
+                        <img src="photo4_thumb.jpg" alt="Asa的美好回忆4" loading="lazy" data-full="photo4.jpg">
+                    </div>
+                    <div class="photo-item">
+                        <img src="photo5_thumb.jpg" alt="Asa的美好回忆5" loading="lazy" data-full="photo5.jpg">
+                    </div>
+                    <div class="photo-item">
+                        <img src="photo6_thumb.jpg" alt="Asa的美好回忆6" loading="lazy" data-full="photo6.jpg">
+                    </div>
+                    <div class="photo-item">
+                        <img src="photo7_thumb.jpg" alt="Asa的美好回忆7" loading="lazy" data-full="photo7.jpg">
+                    </div>
+                    <div class="photo-item">
+                        <img src="photo8_thumb.jpg" alt="Asa的美好回忆8" loading="lazy" data-full="photo8.jpg">
+                    </div>
+                    <div class="photo-item">
+                        <img src="photo9_thumb.jpg" alt="Asa的美好回忆9" loading="lazy" data-full="photo9.jpg">
+                    </div>
+                    <div class="photo-item">
+                        <img src="photo10_thumb.jpg" alt="Asa的美好回忆10" loading="lazy" data-full="photo10.jpg">
+                    </div>
+                </div>
             </div>
-        </div>
-        
-        <!-- 胶片轮播图 -->
-        <section class="film-container" aria-label="精彩瞬间">
-            <div class="slideshow-container">
-                <!-- 轮播项将通过JS动态添加 -->
-            </div>
-            <button class="carousel-btn carousel-prev" aria-label="上一张">❮</button>
-            <button class="carousel-btn carousel-next" aria-label="下一张">❯</button>
-        </section>
-    </div>
-
-    <!-- 桌面版主内容区域 -->
-    <main class="main-content" role="main">
-        <!-- 胶片轮播图 - 19张图片 -->
-        <section class="film-container" aria-label="精彩瞬间">
-            <h2 style="color: #ff4081; text-align: center; margin-bottom: 20px;">精彩瞬间</h2>
-            <div class="slideshow-container">
-                <!-- 轮播项将通过JS动态添加 -->
-            </div>
-            <button class="carousel-btn carousel-prev" aria-label="上一张">❮</button>
-            <button class="carousel-btn carousel-next" aria-label="下一张">❯</button>
         </section>
         
-        <!-- 可以添加更多内容使页面更长 -->
-        <div style="height: 100vh; display: flex; justify-content: center; align-items: center;">
-            <h2 style="color: #ff4081;">更多祝福内容...</h2>
+        <!-- 轮播图 -->
+        <section class="carousel-section" aria-label="精彩瞬间">
+            <div class="carousel-container">
+                <div class="carousel-track">
+                    <!-- 轮播项将通过JS动态添加 -->
+                </div>
+                <button class="carousel-btn carousel-prev" aria-label="上一张">❮</button>
+                <button class="carousel-btn carousel-next" aria-label="下一张">❯</button>
+                <div class="carousel-indicators">
+                    <!-- 指示器将通过JS动态添加 -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- 互动按钮区域 (桌面版) -->
+        <div class="action-buttons">
+            <button id="like-btn" class="action-btn" aria-label="点赞">
+                ❤️ <span>点赞</span>
+            </button>
+            <button id="danmu-btn" class="action-btn" aria-label="弹幕">
+                🎆 <span>弹幕</span>
+            </button>
+            <button id="chat-btn" class="action-btn" aria-label="留言">
+                💬 <span>留言</span>
+            </button>
+            <button id="drawing-btn" class="action-btn" aria-label="涂鸦">
+                🎨 <span>涂鸦</span>
+            </button>
         </div>
-    </main>
-
-    <!-- 移动端互动按钮 - 底部固定 -->
-    <div class="interaction-buttons">
-        <button id="mobile-like-btn" class="mobile-button" aria-label="点赞">❤️<br><span>点赞</span></button>
-        <button id="mobile-danmu-btn" class="mobile-button" aria-label="弹幕">🎆<br><span>弹幕</span></button>
-        <button id="mobile-chat-toggle" class="mobile-button" aria-label="留言">💬<br><span>留言</span></button>
-        <button id="mobile-drawing-btn" class="mobile-button" aria-label="涂鸦">🎨<br><span>涂鸦</span></button>
     </div>
 
-    <!-- 弹幕输入区域 -->
-    <div id="danmu-input-container" class="panel">
+    <!-- 弹幕面板 -->
+    <div id="danmu-panel" class="panel">
         <div class="panel-header">
-            <div class="panel-title">弹幕留言</div>
+            <h2 class="panel-title">发送弹幕</h2>
             <button class="close-btn" id="close-danmu">×</button>
         </div>
-        <div id="danmu-container"></div>
-        <div class="input-group">
-            <input type="text" id="danmu-input" placeholder="输入弹幕内容..." aria-label="弹幕输入">
-            <button id="danmu-send" class="vintage-button">发送</button>
+        <div class="panel-body" id="danmu-container">
+            <!-- 弹幕消息将在这里显示 -->
+        </div>
+        <div class="panel-footer">
+            <div class="input-group">
+                <input type="text" id="danmu-input" class="input-field" placeholder="输入弹幕内容..." aria-label="弹幕输入">
+                <button id="danmu-send" class="send-btn">发送</button>
+            </div>
         </div>
     </div>
 
-    <!-- 聊天室 -->
-    <div id="chat-box-container" class="panel">
+    <!-- 留言面板 -->
+    <div id="chat-panel" class="panel">
         <div class="panel-header">
-            <div class="panel-title">生日祝福</div>
+            <h2 class="panel-title">生日祝福</h2>
             <button class="close-btn" id="close-chat">×</button>
         </div>
-        <div id="chat-box"></div>
-        <div class="input-group">
-            <input type="text" id="chat-input" placeholder="输入消息" aria-label="消息输入">
-            <button id="chat-send" class="vintage-button">发送</button>
+        <div class="panel-body" id="chat-box">
+            <!-- 留言将在这里显示 -->
+        </div>
+        <div class="panel-footer">
+            <div class="input-group">
+                <input type="text" id="chat-input" class="input-field" placeholder="输入祝福消息..." aria-label="消息输入">
+                <button id="chat-send" class="send-btn">发送</button>
+            </div>
         </div>
     </div>
 
     <!-- 音乐按钮 -->
     <button class="music-btn" aria-label="音乐控制">🎵</button>
 
-    <!-- 图片预览模态框 -->
-    <div id="image-modal" class="modal" role="dialog" aria-hidden="true">
-        <span class="close-modal" aria-label="关闭图片">&times;</span>
-        <img class="modal-content" id="modal-image" alt="放大图片">
+    <!-- 图片预览 -->
+    <div class="image-preview" id="image-preview">
+        <button class="close-preview" aria-label="关闭预览">×</button>
+        <img id="preview-image" src="" alt="预览图片">
     </div>
 
     <!-- 音乐播放器 -->
     <audio id="music" loop preload="metadata">
         <source src="birthday.mp3" type="audio/mpeg">
-        <source src="birthday.ogg" type="audio/ogg">
     </audio>
 
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>
-        // 预加载重要资源
-        function preloadImages() {
-            const images = [
-                'background.jpg',
-                'photo1_thumb.jpg', 'photo1.jpg',
-                'photo2_thumb.jpg', 'photo2.jpg',
-                'photo3_thumb.jpg', 'photo3.jpg',
-                'photo4_thumb.jpg', 'photo4.jpg',
-                'photo5_thumb.jpg', 'photo5.jpg',
-                'photo6_thumb.jpg', 'photo6.jpg',
-                'photo7_thumb.jpg', 'photo7.jpg',
-                'photo8_thumb.jpg', 'photo8.jpg',
-                'photo9_thumb.jpg', 'photo9.jpg',
-                'photo10_thumb.jpg', 'photo10.jpg',
-                'photo11_thumb.jpg', 'photo11.jpg',
-                'photo12_thumb.jpg', 'photo12.jpg',
-                'photo13_thumb.jpg', 'photo13.jpg',
-                'photo14_thumb.jpg', 'photo14.jpg',
-                'photo15_thumb.jpg', 'photo15.jpg',
-                'photo16_thumb.jpg', 'photo16.jpg',
-                'photo17_thumb.jpg', 'photo17.jpg',
-                'photo18_thumb.jpg', 'photo18.jpg',
-                'photo19_thumb.jpg', 'photo19.jpg',
-                'photo20_thumb.jpg', 'photo20.jpg',
-                'photo21_thumb.jpg', 'photo21.jpg',
-                'slide1.jpg', 'slide2.jpg', 'slide3.jpg', 'slide4.jpg',
-                'slide5.jpg', 'slide6.jpg', 'slide7.jpg', 'slide8.jpg',
-                'slide9.jpg', 'slide10.jpg', 'slide11.jpg', 'slide12.jpg',
-                'slide13.jpg', 'slide14.jpg', 'slide15.jpg', 'slide16.jpg',
-                'slide17.jpg', 'slide18.jpg', 'slide19.jpg',
-                'rabbit.png', 'cake.png'
-            ];
+        // 主应用程序
+        class BirthdayApp {
+            constructor() {
+                this.likeCount = 0;
+                this.messages = JSON.parse(localStorage.getItem('birthdayMessages')) || [];
+                this.carouselIndex = 1;
+                this.isMusicPlaying = false;
+                this.isDesktop = window.innerWidth >= 992;
+                
+                this.init();
+            }
             
-            images.forEach(img => {
-                new Image().src = img;
-            });
-        }
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            preloadImages();
-            
-            // 移除加载动画
-            setTimeout(() => {
-                document.querySelector('.loader').style.opacity = '0';
+            init() {
+                this.preloadAssets();
+                this.setupEventListeners();
+                this.initCarousel();
+                this.loadMessages();
+                this.initParticles();
+                this.initDanmu();
+                
+                // 移除加载动画
                 setTimeout(() => {
-                    document.querySelector('.loader').style.display = 'none';
-                }, 500);
-            }, 1000);
-            
-            // 初始化粒子动画
-            if (typeof particlesJS === 'function') {
-                particlesJS('particles-js', {
-                    particles: {
-                        number: { 
-                            value: 80,
-                            density: {
-                                enable: true,
-                                value_area: 800
-                            }
-                        },
-                        color: { 
-                            value: ["#ffb6c1", "#ffd3b6", "#dcedc1"] 
-                        },
-                        shape: { 
-                            type: "circle",
-                            stroke: {
-                                width: 0,
-                                color: "#000000"
-                            }
-                        },
-                        opacity: {
-                            value: 0.5,
-                            random: true,
-                            anim: {
-                                enable: true,
-                                speed: 1,
-                                opacity_min: 0.1,
-                                sync: false
-                            }
-                        },
-                        size: {
-                            value: 3,
-                            random: true
-                        },
-                        line_linked: {
-                            enable: true,
-                            distance: 150,
-                            color: "#ffb6c1",
-                            opacity: 0.3,
-                            width: 1
-                        },
-                        move: {
-                            enable: true,
-                            speed: 2,
-                            direction: "none",
-                            random: true,
-                            straight: false,
-                            out_mode: "out"
-                        }
-                    },
-                    interactivity: {
-                        detect_on: "canvas",
-                        events: {
-                            onhover: {
-                                enable: true,
-                                mode: "grab"
-                            }
-                        }
-                    }
-                });
+                    document.querySelector('.loader').style.opacity = '0';
+                    setTimeout(() => {
+                        document.querySelector('.loader').style.display = 'none';
+                        this.backgroundLoaded();
+                    }, 500);
+                }, 1000);
             }
             
-            // 启动星星特效
-            setInterval(createStarParticle, 10000);
-            
-            // 初始化轮播图
-            initSlideshow();
-            
-            // 初始化互动功能
-            initInteractions();
-            
-            // 初始化图片预览
-            initImagePreview();
-        });
-        
-        // 创建星星粒子
-        function createStarParticle() {
-            const star = document.createElement('div');
-            star.className = 'star-particle';
-            star.style.setProperty('--random-x', Math.random() * 2 - 1);
-            star.style.setProperty('--random-y', Math.random() * 2 - 1);
-            star.style.left = Math.random() * window.innerWidth + 'px';
-            star.style.top = Math.random() * window.innerHeight + 'px';
-            star.style.animationDuration = `${Math.random() * 5 + 5}s`;
-            star.style.width = `${Math.random() * 30 + 20}px`;
-            star.style.height = star.style.width;
-            document.body.appendChild(star);
-            
-            setTimeout(() => star.remove(), 10000);
-        }
-
-        // 音乐控制
-        const music = document.getElementById('music');
-        const musicBtn = document.querySelector('.music-btn');
-        let isMusicPlaying = false;
-        
-        function unlockAudio() {
-            music.volume = 0.3;
-            document.body.removeEventListener('click', unlockAudio);
-        }
-        
-        document.body.addEventListener('click', unlockAudio, { once: true });
-        
-        musicBtn.addEventListener('click', function() {
-            if (isMusicPlaying) {
-                music.pause();
-                musicBtn.textContent = '🎵';
-            } else {
-                music.play()
-                    .then(() => {
-                        isMusicPlaying = true;
-                        musicBtn.textContent = '🔊';
-                    })
-                    .catch(error => {
-                        console.error('播放失败:', error);
-                        alert('请先点击页面其他位置激活音频');
-                    });
-            }
-            isMusicPlaying = !isMusicPlaying;
-        });
-        
-        // 点赞功能
-        let likeCount = 0;
-        
-        function initLikeButton(buttonId) {
-            document.getElementById(buttonId).addEventListener("click", function() {
-                likeCount++;
-                if (buttonId === 'like-btn') {
-                    document.getElementById("like-count").textContent = likeCount;
-                }
+            preloadAssets() {
+                const images = [
+                    'background.jpg',
+                    'photo1_thumb.jpg', 'photo1.jpg',
+                    'photo2_thumb.jpg', 'photo2.jpg',
+                    'photo3_thumb.jpg', 'photo3.jpg',
+                    'photo4_thumb.jpg', 'photo4.jpg',
+                    'photo5_thumb.jpg', 'photo5.jpg',
+                    'photo6_thumb.jpg', 'photo6.jpg',
+                    'photo7_thumb.jpg', 'photo7.jpg',
+                    'photo8_thumb.jpg', 'photo8.jpg',
+                    'photo9_thumb.jpg', 'photo9.jpg',
+                    'photo10_thumb.jpg', 'photo10.jpg',
+                    'slide1.jpg', 'slide2.jpg', 'slide3.jpg', 'slide4.jpg',
+                    'slide5.jpg', 'slide6.jpg', 'slide7.jpg', 'slide8.jpg',
+                    'slide9.jpg', 'slide10.jpg', 'slide11.jpg', 'slide12.jpg',
+                    'slide13.jpg', 'slide14.jpg', 'slide15.jpg', 'slide16.jpg',
+                    'slide17.jpg', 'slide18.jpg', 'slide19.jpg',
+                    'rabbit.png', 'cake.png'
+                ];
                 
-                // 创建心形特效
-                const heart = document.createElement('div');
-                heart.className = 'heart';
-                heart.innerHTML = '❤️';
-                heart.style.left = Math.random() * window.innerWidth + 'px';
-                heart.style.top = '0';
-                heart.style.fontSize = (Math.random() * 20 + 20) + 'px';
-                heart.style.color = `hsl(${Math.random() * 60 + 330}, 100%, 70%)`;
-                document.body.appendChild(heart);
-                
-                setTimeout(() => heart.remove(), 3000);
-                
-                // 按钮动画
-                this.style.transform = 'scale(1.2)';
-                setTimeout(() => {
-                    this.style.transform = 'scale(1)';
-                }, 200);
-                
-                // 特殊效果
-                if(likeCount === 417) {
-                    const cake = document.createElement('div');
-                    cake.className = 'cake-effect';
-                    document.body.appendChild(cake);
-                    setTimeout(() => cake.remove(), 5000);
-                    
-                    for(let i = 0; i < 50; i++) {
-                        setTimeout(createStarParticle, i * 100);
-                    }
-                }
-            });
-        }
-        
-        // 点击屏幕兔子特效
-        document.addEventListener('click', function(e) {
-            const rabbit = document.createElement('div');
-            rabbit.className = 'click-rabbit';
-            rabbit.style.left = (e.clientX - 30) + 'px';
-            rabbit.style.top = (e.clientY - 30) + 'px';
-            document.body.appendChild(rabbit);
-            setTimeout(() => rabbit.remove(), 1000);
-        });
-        
-        // 弹幕功能
-        function initDanmu(buttonId, closeButtonId) {
-            const danmuBtn = document.getElementById(buttonId);
-            const danmuContainer = document.getElementById("danmu-input-container");
-            const closeDanmu = document.getElementById(closeButtonId || "close-danmu");
-            
-            danmuBtn.addEventListener("click", function() {
-                danmuContainer.style.display = "block";
-                document.getElementById("chat-box-container").style.display = "none";
-            });
-            
-            if (closeDanmu) {
-                closeDanmu.addEventListener("click", function() {
-                    danmuContainer.style.display = "none";
-                });
-            }
-            
-            document.getElementById("danmu-send").addEventListener("click", sendDanmu);
-            document.getElementById("danmu-input").addEventListener("keypress", function(e) {
-                if (e.key === 'Enter') sendDanmu();
-            });
-            
-            const danmuMessages = [
-                "Asa生日快乐！",
-                "Happy Birthday!",
-                "祝你天天开心！",
-                "生日快乐呀~",
-                "Best wishes!",
-                "生日快乐！🎂",
-                "Happy Asa Day!",
-                "祝你心想事成！",
-                "生日快乐🎉🎉",
-                "永远年轻美丽！"
-            ];
-            
-            // 初始弹幕
-            for (let i = 0; i < 5; i++) {
-                setTimeout(() => {
-                    createDanmu(danmuMessages[Math.floor(Math.random() * danmuMessages.length)]);
-                }, i * 2000);
-            }
-            
-            // 随机弹幕
-            setInterval(() => {
-                if (Math.random() > 0.7) {
-                    createDanmu(danmuMessages[Math.floor(Math.random() * danmuMessages.length)]);
-                }
-            }, 3000);
-        }
-        
-        function sendDanmu() {
-            const input = document.getElementById("danmu-input");
-            const text = input.value.trim();
-            if (!text) return;
-            
-            createDanmu(text);
-            addMessageToContainer("danmu-container", text, false);
-            input.value = "";
-        }
-        
-        function createDanmu(text) {
-            const danmu = document.createElement('div');
-            danmu.className = 'danmu-item';
-            danmu.textContent = text;
-            
-            const top = Math.random() * (window.innerHeight - 100) + 50;
-            const color = `hsl(${Math.random() * 360}, 100%, 70%)`;
-            const duration = Math.random() * 10 + 10;
-            
-            danmu.style.top = `${top}px`;
-            danmu.style.color = color;
-            danmu.style.animationDuration = `${duration}s`;
-            
-            document.body.appendChild(danmu);
-            
-            setTimeout(() => danmu.remove(), duration * 1000);
-        }
-        
-        // 聊天室功能
-        let messages = JSON.parse(localStorage.getItem('birthdayMessages')) || [];
-        
-        function initChat(buttonId, closeButtonId) {
-            const chatToggle = document.getElementById(buttonId);
-            const chatContainer = document.getElementById("chat-box-container");
-            const closeChat = document.getElementById(closeButtonId || "close-chat");
-            
-            chatToggle.addEventListener("click", function() {
-                chatContainer.style.display = "flex";
-                document.getElementById("danmu-input-container").style.display = "none";
-            });
-            
-            if (closeChat) {
-                closeChat.addEventListener("click", function() {
-                    chatContainer.style.display = "none";
-                });
-            }
-            
-            document.getElementById("chat-send").addEventListener("click", function() {
-                const input = document.getElementById("chat-input");
-                const text = input.value.trim();
-                if (!text) return;
-                
-                addMessageToContainer("chat-box", text, true);
-                input.value = "";
-            });
-            
-            document.getElementById("chat-input").addEventListener("keypress", function(e) {
-                if (e.key === 'Enter') {
-                    const input = document.getElementById("chat-input");
-                    const text = input.value.trim();
-                    if (!text) return;
-                    
-                    addMessageToContainer("chat-box", text, true);
-                    input.value = "";
-                }
-            });
-            
-            // 加载历史消息
-            loadMessages();
-        }
-        
-        function addMessageToContainer(containerId, text, save = false) {
-            const container = document.getElementById(containerId);
-            const message = document.createElement('div');
-            message.className = 'message';
-            
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            
-            message.innerHTML = `
-                <div>${text}</div>
-                <div class="message-time">${timeStr}</div>
-            `;
-            
-            container.appendChild(message);
-            container.scrollTop = container.scrollHeight;
-            
-            if (save) {
-                messages.push({text, time: now.getTime()});
-                localStorage.setItem('birthdayMessages', JSON.stringify(messages));
-            }
-        }
-        
-        function loadMessages() {
-            messages.forEach(msg => {
-                const date = new Date(msg.time);
-                const timeStr = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                
-                const message = document.createElement('div');
-                message.className = 'message';
-                message.innerHTML = `
-                    <div>${msg.text}</div>
-                    <div class="message-time">${timeStr}</div>
-                `;
-                
-                document.getElementById('chat-box').appendChild(message);
-            });
-            
-            if (messages.length > 0) {
-                document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
-            }
-        }
-        
-        // 轮播图功能（首尾连接）
-        function initSlideshow() {
-            const images = [
-                'slide1.jpg',
-                'slide2.jpg',
-                'slide3.jpg',
-                'slide4.jpg',
-                'slide5.jpg',
-                'slide6.jpg',
-                'slide7.jpg',
-                'slide8.jpg',
-                'slide9.jpg',
-                'slide10.jpg',
-                'slide11.jpg',
-                'slide12.jpg',
-                'slide13.jpg',
-                'slide14.jpg',
-                'slide15.jpg',
-                'slide16.jpg',
-                'slide17.jpg',
-                'slide18.jpg',
-                'slide19.jpg'
-            ];
-            
-            const tracks = document.querySelectorAll(".slideshow-container");
-            const prevBtns = document.querySelectorAll(".carousel-prev");
-            const nextBtns = document.querySelectorAll(".carousel-next");
-            let currentIndex = 1;
-            let autoSlideInterval;
-            
-            // 创建轮播项
-            function createSlides(track) {
-                // 克隆最后一张放到开头
-                const lastClone = document.createElement('div');
-                lastClone.className = 'slide';
-                lastClone.innerHTML = `<img src="${images[images.length-1]}" alt="轮播图" loading="lazy">`;
-                track.appendChild(lastClone);
-                
-                // 添加所有真实图片
                 images.forEach(img => {
-                    const slide = document.createElement('div');
-                    slide.className = 'slide';
-                    slide.innerHTML = `<img src="${img}" alt="轮播图" loading="lazy">`;
-                    track.appendChild(slide);
+                    new Image().src = img;
+                });
+            }
+            
+            backgroundLoaded() {
+                document.querySelector('.background-image').style.opacity = '1';
+            }
+            
+            setupEventListeners() {
+                // 音乐控制
+                const music = document.getElementById('music');
+                const musicBtn = document.querySelector('.music-btn');
+                
+                // 音频解锁
+                const unlockAudio = () => {
+                    music.volume = 0.3;
+                    document.body.removeEventListener('click', unlockAudio);
+                };
+                document.body.addEventListener('click', unlockAudio, { once: true });
+                
+                musicBtn.addEventListener('click', () => {
+                    if (this.isMusicPlaying) {
+                        music.pause();
+                        musicBtn.textContent = '🎵';
+                        musicBtn.classList.remove('pulse');
+                    } else {
+                        music.play()
+                            .then(() => {
+                                this.isMusicPlaying = true;
+                                musicBtn.textContent = '🔊';
+                                musicBtn.classList.add('pulse');
+                            })
+                            .catch(error => {
+                                console.error('播放失败:', error);
+                            });
+                    }
+                    this.isMusicPlaying = !this.isMusicPlaying;
                 });
                 
-                // 克隆第一张放到最后
-                const firstClone = document.createElement('div');
-                firstClone.className = 'slide';
-                firstClone.innerHTML = `<img src="${images[0]}" alt="轮播图" loading="lazy">`;
-                track.appendChild(firstClone);
-            }
-            
-            function goToSlide(index) {
-                currentIndex = index;
-                tracks.forEach(track => {
-                    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+                // 点赞按钮
+                document.getElementById('like-btn').addEventListener('click', () => this.handleLike());
+                
+                // 弹幕按钮
+                document.getElementById('danmu-btn').addEventListener('click', () => this.togglePanel('danmu-panel'));
+                document.getElementById('close-danmu').addEventListener('click', () => this.togglePanel('danmu-panel'));
+                
+                // 留言按钮
+                document.getElementById('chat-btn').addEventListener('click', () => this.togglePanel('chat-panel'));
+                document.getElementById('close-chat').addEventListener('click', () => this.togglePanel('chat-panel'));
+                
+                // 发送按钮
+                document.getElementById('danmu-send').addEventListener('click', () => this.sendDanmu());
+                document.getElementById('chat-send').addEventListener('click', () => this.sendMessage());
+                
+                // 输入框回车事件
+                document.getElementById('danmu-input').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.sendDanmu();
+                });
+                
+                document.getElementById('chat-input').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.sendMessage();
+                });
+                
+                // 图片点击预览
+                document.querySelectorAll('.photo-item img').forEach(img => {
+                    img.addEventListener('click', () => this.previewImage(img));
+                });
+                
+                // 全局点击特效
+                document.addEventListener('click', (e) => this.createClickEffect(e));
+                
+                // 窗口大小变化
+                window.addEventListener('resize', () => {
+                    this.isDesktop = window.innerWidth >= 992;
+                });
+                
+                // 键盘快捷键
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        document.getElementById('image-preview').classList.remove('active');
+                        document.querySelectorAll('.panel').forEach(panel => {
+                            panel.classList.remove('active');
+                        });
+                    }
                 });
             }
             
-            function showNextSlide() {
-                currentIndex++;
-                tracks.forEach(track => {
-                    track.style.transition = "transform 0.5s ease";
+            initParticles() {
+                if (typeof particlesJS === 'function') {
+                    particlesJS('particles-js', {
+                        particles: {
+                            number: { 
+                                value: this.isDesktop ? 80 : 40,
+                                density: {
+                                    enable: true,
+                                    value_area: 800
+                                }
+                            },
+                            color: { 
+                                value: ["#ffb6c1", "#ffd3b6", "#dcedc1"] 
+                            },
+                            shape: { 
+                                type: "circle",
+                                stroke: {
+                                    width: 0,
+                                    color: "#000000"
+                                }
+                            },
+                            opacity: {
+                                value: 0.5,
+                                random: true,
+                                anim: {
+                                    enable: true,
+                                    speed: 1,
+                                    opacity_min: 0.1,
+                                    sync: false
+                                }
+                            },
+                            size: {
+                                value: 3,
+                                random: true
+                            },
+                            line_linked: {
+                                enable: true,
+                                distance: this.isDesktop ? 150 : 100,
+                                color: "#ffb6c1",
+                                opacity: 0.3,
+                                width: 1
+                            },
+                            move: {
+                                enable: true,
+                                speed: this.isDesktop ? 2 : 1,
+                                direction: "none",
+                                random: true,
+                                straight: false,
+                                out_mode: "out"
+                            }
+                        },
+                        interactivity: {
+                            detect_on: "canvas",
+                            events: {
+                                onhover: {
+                                    enable: true,
+                                    mode: "grab"
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+            
+            initCarousel() {
+                const images = [
+                    'slide1.jpg', 'slide2.jpg', 'slide3.jpg', 'slide4.jpg',
+                    'slide5.jpg', 'slide6.jpg', 'slide7.jpg', 'slide8.jpg',
+                    'slide9.jpg', 'slide10.jpg', 'slide11.jpg', 'slide12.jpg',
+                    'slide13.jpg', 'slide14.jpg', 'slide15.jpg', 'slide16.jpg',
+                    'slide17.jpg', 'slide18.jpg', 'slide19.jpg'
+                ];
+                
+                const track = document.querySelector('.carousel-track');
+                const indicators = document.querySelector('.carousel-indicators');
+                const prevBtn = document.querySelector('.carousel-prev');
+                const nextBtn = document.querySelector('.carousel-next');
+                
+                // 创建轮播项
+                const createSlides = () => {
+                    // 克隆最后一张放到开头
+                    const lastClone = document.createElement('div');
+                    lastClone.className = 'carousel-slide';
+                    lastClone.innerHTML = `<img src="${images[images.length-1]}" alt="轮播图" loading="lazy">`;
+                    track.appendChild(lastClone);
+                    
+                    // 添加所有真实图片
+                    images.forEach((img, index) => {
+                        const slide = document.createElement('div');
+                        slide.className = 'carousel-slide';
+                        slide.innerHTML = `<img src="${img}" alt="轮播图 ${index + 1}" loading="lazy">`;
+                        track.appendChild(slide);
+                        
+                        // 添加指示器
+                        const indicator = document.createElement('div');
+                        indicator.className = 'carousel-indicator';
+                        indicator.dataset.index = index;
+                        indicator.addEventListener('click', () => this.goToSlide(index + 1));
+                        indicators.appendChild(indicator);
+                    });
+                    
+                    // 克隆第一张放到最后
+                    const firstClone = document.createElement('div');
+                    firstClone.className = 'carousel-slide';
+                    firstClone.innerHTML = `<img src="${images[0]}" alt="轮播图" loading="lazy">`;
+                    track.appendChild(firstClone);
+                };
+                
+                this.goToSlide = (index) => {
+                    this.carouselIndex = index;
+                    track.style.transition = "transform 0.5s cubic-bezier(0.645, 0.045, 0.355, 1)";
+                    track.style.transform = `translateX(-${this.carouselIndex * 100}%)`;
+                    
+                    // 更新指示器
+                    const activeIndex = (index - 1) % images.length;
+                    document.querySelectorAll('.carousel-indicator').forEach((ind, i) => {
+                        ind.classList.toggle('active', i === activeIndex);
+                    });
+                };
+                
+                const showNextSlide = () => {
+                    this.carouselIndex++;
+                    track.style.transition = "transform 0.5s cubic-bezier(0.645, 0.045, 0.355, 1)";
+                    this.goToSlide(this.carouselIndex);
+                };
+                
+                const showPrevSlide = () => {
+                    this.carouselIndex--;
+                    track.style.transition = "transform 0.5s cubic-bezier(0.645, 0.045, 0.355, 1)";
+                    this.goToSlide(this.carouselIndex);
+                };
+                
+                // 初始化
+                createSlides();
+                this.goToSlide(1);
+                
+                // 无缝连接处理
+                track.addEventListener('transitionend', () => {
+                    if (this.carouselIndex === 0) {
+                        track.style.transition = 'none';
+                        this.carouselIndex = track.children.length - 2;
+                        this.goToSlide(this.carouselIndex);
+                    } else if (this.carouselIndex === track.children.length - 1) {
+                        track.style.transition = 'none';
+                        this.carouselIndex = 1;
+                        this.goToSlide(this.carouselIndex);
+                    }
                 });
-                goToSlide(currentIndex);
+                
+                // 添加事件监听
+                prevBtn.addEventListener('click', showPrevSlide);
+                nextBtn.addEventListener('click', showNextSlide);
+                
+                // 触摸滑动支持
+                this.initTouchEvents(track, showPrevSlide, showNextSlide);
+                
+                // 自动轮播
+                this.startAutoSlide(showNextSlide);
+                
+                // 鼠标悬停暂停
+                track.addEventListener('mouseenter', () => this.stopAutoSlide());
+                track.addEventListener('mouseleave', () => this.startAutoSlide(showNextSlide));
             }
             
-            function showPrevSlide() {
-                currentIndex--;
-                tracks.forEach(track => {
-                    track.style.transition = "transform 0.5s ease";
-                });
-                goToSlide(currentIndex);
-            }
-            
-            function startAutoSlide() {
-                autoSlideInterval = setInterval(showNextSlide, 3000);
-            }
-            
-            function stopAutoSlide() {
-                clearInterval(autoSlideInterval);
-            }
-            
-            function initTouchEvents(track) {
+            initTouchEvents(track, showPrevSlide, showNextSlide) {
                 let startX = 0;
                 let isSwiping = false;
                 
@@ -1356,15 +1206,15 @@
                     startX = e.touches[0].clientX;
                     isSwiping = true;
                     track.style.transition = 'none';
-                    stopAutoSlide();
-                });
+                    this.stopAutoSlide();
+                }, { passive: true });
                 
                 track.addEventListener('touchmove', (e) => {
                     if (!isSwiping) return;
                     const x = e.touches[0].clientX;
                     const diff = startX - x;
-                    track.style.transform = `translateX(calc(-${currentIndex * 100}% - ${diff}px))`;
-                });
+                    track.style.transform = `translateX(calc(-${this.carouselIndex * 100}% - ${diff}px))`;
+                }, { passive: true });
                 
                 track.addEventListener('touchend', (e) => {
                     if (!isSwiping) return;
@@ -1379,163 +1229,239 @@
                         showPrevSlide();
                     } else {
                         track.style.transition = 'transform 0.3s ease';
-                        goToSlide(currentIndex);
+                        this.goToSlide(this.carouselIndex);
                     }
                     
-                    startAutoSlide();
-                });
+                    this.startAutoSlide(showNextSlide);
+                }, { passive: true });
             }
             
-            // 初始化所有轮播图
-            tracks.forEach(track => {
-                createSlides(track);
-                initTouchEvents(track);
+            startAutoSlide(showNextSlide) {
+                this.autoSlideInterval = setInterval(showNextSlide, 3000);
+            }
+            
+            stopAutoSlide() {
+                clearInterval(this.autoSlideInterval);
+            }
+            
+            handleLike() {
+                this.likeCount++;
                 
-                // 鼠标悬停暂停
-                track.addEventListener('mouseenter', stopAutoSlide);
-                track.addEventListener('mouseleave', startAutoSlide);
-            });
-            
-            // 初始位置
-            goToSlide(1);
-            
-            // 无缝连接处理
-            tracks[0].addEventListener('transitionend', () => {
-                if (currentIndex === 0) {
-                    tracks.forEach(track => {
-                        track.style.transition = 'none';
-                    });
-                    currentIndex = tracks[0].children.length - 2;
-                    goToSlide(currentIndex);
-                } else if (currentIndex === tracks[0].children.length - 1) {
-                    tracks.forEach(track => {
-                        track.style.transition = 'none';
-                    });
-                    currentIndex = 1;
-                    goToSlide(currentIndex);
-                }
-            });
-            
-            // 添加事件监听
-            prevBtns.forEach(btn => {
-                btn.addEventListener('click', showPrevSlide);
-            });
-            
-            nextBtns.forEach(btn => {
-                btn.addEventListener('click', showNextSlide);
-            });
-            
-            // 自动轮播
-            startAutoSlide();
-        }
-        
-        // 图片预览功能
-        function initImagePreview() {
-            const modal = document.getElementById('image-modal');
-            const modalImg = document.getElementById('modal-image');
-            const closeBtn = document.querySelector('.close-modal');
-            
-            // 桌面版图片点击
-            document.querySelectorAll('.photo-gallery img').forEach(img => {
-                img.addEventListener('click', function() {
-                    const originalSrc = this.dataset.full || this.src.replace('_thumb', '');
-                    modalImg.onload = function() {
-                        const imgRatio = this.naturalWidth / this.naturalHeight;
-                        const windowRatio = window.innerWidth / window.innerHeight;
-                        
-                        if (imgRatio > windowRatio) {
-                            this.style.width = '90vw';
-                            this.style.height = 'auto';
-                        } else {
-                            this.style.height = '90vh';
-                            this.style.width = 'auto';
-                        }
-                    };
-                    modalImg.src = originalSrc;
-                    modal.style.display = 'flex';
-                    document.body.style.overflow = 'hidden';
-                });
-            });
-            
-            // 移动版图片点击
-            document.querySelectorAll('.mobile-photo-gallery img').forEach(img => {
-                img.addEventListener('click', function() {
-                    const originalSrc = this.dataset.full || this.src;
-                    modalImg.onload = function() {
-                        const imgRatio = this.naturalWidth / this.naturalHeight;
-                        const windowRatio = window.innerWidth / window.innerHeight;
-                        
-                        if (imgRatio > windowRatio) {
-                            this.style.width = '90vw';
-                            this.style.height = 'auto';
-                        } else {
-                            this.style.height = '90vh';
-                            this.style.width = 'auto';
-                        }
-                    };
-                    modalImg.src = originalSrc;
-                    modal.style.display = 'flex';
-                    document.body.style.overflow = 'hidden';
-                });
-            });
-            
-            closeBtn.addEventListener('click', function() {
-                modal.style.display = 'none';
-                document.body.style.overflow = 'auto';
-            });
-            
-            modal.addEventListener('click', function(e) {
-                if (e.target === modal) {
-                    modal.style.display = 'none';
-                    document.body.style.overflow = 'auto';
-                }
-            });
-        }
-        
-        // 初始化所有互动功能
-        function initInteractions() {
-            // 音乐控制
-            musicBtn.addEventListener('click', function() {
-                if (isMusicPlaying) {
-                    music.pause();
-                    musicBtn.textContent = '🎵';
-                } else {
-                    music.play()
-                        .then(() => {
-                            isMusicPlaying = true;
-                            musicBtn.textContent = '🔊';
-                        })
-                        .catch(error => {
-                            console.error('播放失败:', error);
-                        });
-                }
-                isMusicPlaying = !isMusicPlaying;
-            });
-            
-            // 桌面版互动按钮
-            initLikeButton('like-btn');
-            initDanmu('danmu-btn');
-            initChat('chat-toggle');
-            
-            // 移动版互动按钮
-            initLikeButton('mobile-like-btn');
-            initDanmu('mobile-danmu-btn', 'close-danmu');
-            initChat('mobile-chat-toggle', 'close-chat');
-            
-            // 键盘可访问性
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    const modal = document.getElementById('image-modal');
-                    if (modal.style.display === 'flex') {
-                        modal.style.display = 'none';
-                        document.body.style.overflow = 'auto';
-                    }
+                // 创建心形特效
+                this.createHeart();
+                
+                // 按钮动画
+                const likeBtn = document.getElementById('like-btn');
+                likeBtn.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    likeBtn.style.transform = 'scale(1)';
+                }, 200);
+                
+                // 特殊效果
+                if(this.likeCount === 417) {
+                    this.createCakeEffect();
                     
-                    document.getElementById("danmu-input-container").style.display = "none";
-                    document.getElementById("chat-box-container").style.display = "none";
+                    // 创建彩色纸屑效果
+                    for(let i = 0; i < 100; i++) {
+                        setTimeout(() => this.createConfetti(), i * 50);
+                    }
                 }
-            });
+            }
+            
+            createHeart() {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.innerHTML = '❤️';
+                heart.style.left = Math.random() * window.innerWidth + 'px';
+                heart.style.top = window.innerHeight + 'px';
+                heart.style.fontSize = (Math.random() * 20 + 20) + 'px';
+                heart.style.color = `hsl(${Math.random() * 60 + 330}, 100%, 70%)`;
+                heart.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                document.body.appendChild(heart);
+                
+                setTimeout(() => heart.remove(), 5000);
+            }
+            
+            createConfetti() {
+                const colors = ['#ff4081', '#ff6b6b', '#ff9a9e', '#ffb6c1', '#ffd3b6', '#dcedc1'];
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * window.innerWidth + 'px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = `${Math.random() * 10 + 5}px`;
+                confetti.style.height = `${Math.random() * 10 + 5}px`;
+                confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => confetti.remove(), 5000);
+            }
+            
+            createCakeEffect() {
+                const cake = document.createElement('div');
+                cake.className = 'cake-effect';
+                document.body.appendChild(cake);
+                setTimeout(() => cake.remove(), 5000);
+            }
+            
+            createClickEffect(e) {
+                // 只在点击非交互元素时创建特效
+                if (!e.target.closest('button, input, .photo-item')) {
+                    const colors = ['#ff4081', '#ff6b6b', '#ff9a9e', '#ffb6c1'];
+                    const effect = document.createElement('div');
+                    effect.className = 'click-rabbit';
+                    effect.style.left = (e.clientX - 30) + 'px';
+                    effect.style.top = (e.clientY - 30) + 'px';
+                    effect.style.background = `radial-gradient(circle, ${colors[Math.floor(Math.random() * colors.length)]}, transparent)`;
+                    document.body.appendChild(effect);
+                    setTimeout(() => effect.remove(), 1000);
+                }
+            }
+            
+            togglePanel(panelId) {
+                const panel = document.getElementById(panelId);
+                const isActive = panel.classList.contains('active');
+                
+                // 隐藏所有面板
+                document.querySelectorAll('.panel').forEach(p => {
+                    p.classList.remove('active');
+                });
+                
+                // 切换当前面板
+                if (!isActive) {
+                    panel.classList.add('active');
+                    panel.style.display = 'flex';
+                    setTimeout(() => {
+                        panel.classList.add('active');
+                    }, 10);
+                    
+                    // 自动聚焦输入框
+                    if (panelId === 'danmu-panel') {
+                        document.getElementById('danmu-input').focus();
+                    } else if (panelId === 'chat-panel') {
+                        document.getElementById('chat-input').focus();
+                    }
+                } else {
+                    panel.classList.remove('active');
+                    setTimeout(() => {
+                        panel.style.display = 'none';
+                    }, 300);
+                }
+            }
+            
+            initDanmu() {
+                const danmuMessages = [
+                    "Asa生日快乐！",
+                    "Happy Birthday!",
+                    "祝你天天开心！",
+                    "生日快乐呀~",
+                    "Best wishes!",
+                    "生日快乐！🎂",
+                    "Happy Asa Day!",
+                    "祝你心想事成！",
+                    "生日快乐🎉🎉",
+                    "永远年轻美丽！"
+                ];
+                
+                // 初始弹幕
+                for (let i = 0; i < 5; i++) {
+                    setTimeout(() => {
+                        this.createDanmu(danmuMessages[Math.floor(Math.random() * danmuMessages.length)]);
+                    }, i * 2000);
+                }
+                
+                // 随机弹幕
+                setInterval(() => {
+                    if (Math.random() > 0.7) {
+                        this.createDanmu(danmuMessages[Math.floor(Math.random() * danmuMessages.length)]);
+                    }
+                }, 3000);
+            }
+            
+            createDanmu(text) {
+                const danmu = document.createElement('div');
+                danmu.className = 'danmu-item';
+                danmu.textContent = text;
+                
+                const top = Math.random() * (window.innerHeight - 100) + 50;
+                const color = `hsl(${Math.random() * 360}, 100%, 70%)`;
+                const duration = Math.random() * 10 + 10;
+                
+                danmu.style.top = `${top}px`;
+                danmu.style.color = color;
+                danmu.style.animationDuration = `${duration}s`;
+                
+                document.body.appendChild(danmu);
+                
+                setTimeout(() => danmu.remove(), duration * 1000);
+            }
+            
+            sendDanmu() {
+                const input = document.getElementById('danmu-input');
+                const text = input.value.trim();
+                if (!text) return;
+                
+                this.createDanmu(text);
+                this.addMessage('danmu-container', text, false);
+                input.value = '';
+            }
+            
+            loadMessages() {
+                this.messages.forEach(msg => {
+                    this.addMessage('chat-box', msg.text, false, msg.time);
+                });
+                
+                if (this.messages.length > 0) {
+                    document.getElementById('chat-box').scrollTop = document.getElementById('chat-box').scrollHeight;
+                }
+            }
+            
+            sendMessage() {
+                const input = document.getElementById('chat-input');
+                const text = input.value.trim();
+                if (!text) return;
+                
+                this.addMessage('chat-box', text, true);
+                input.value = '';
+            }
+            
+            addMessage(containerId, text, save = false, timestamp) {
+                const container = document.getElementById(containerId);
+                const message = document.createElement('div');
+                message.className = 'message';
+                
+                const now = timestamp ? new Date(timestamp) : new Date();
+                const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                
+                message.innerHTML = `
+                    <div class="message-content">${text}</div>
+                    <div class="message-time">${timeStr}</div>
+                `;
+                
+                container.appendChild(message);
+                container.scrollTop = container.scrollHeight;
+                
+                if (save) {
+                    this.messages.push({text, time: now.getTime()});
+                    localStorage.setItem('birthdayMessages', JSON.stringify(this.messages));
+                }
+            }
+            
+            previewImage(imgElement) {
+                const preview = document.getElementById('image-preview');
+                const previewImg = document.getElementById('preview-image');
+                
+                previewImg.src = imgElement.dataset.full || imgElement.src;
+                previewImg.alt = imgElement.alt;
+                
+                preview.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
         }
+        
+        // 初始化应用程序
+        document.addEventListener('DOMContentLoaded', () => {
+            const app = new BirthdayApp();
+        });
     </script>
 </body>
 </html>
